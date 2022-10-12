@@ -1,0 +1,8 @@
+type Query {
+  "Lista de usuarios de la Base de datos"
+  users: [User!]!
+  "Inicio de sesión con nuestros credenciales"
+  login(email: String!, password: String!): String!
+  "Obtenemos nuestros datos mediante autenticación por token JWT"
+  me: String!
+}
