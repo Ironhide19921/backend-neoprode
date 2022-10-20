@@ -3,6 +3,7 @@ import { Db } from "mongodb";
 import { IUser } from "../interfaces/user.interface";
 import bcrypt from "bcrypt";
 import JWT from "../lib/jwt";
+import { ELEMENTS_SELECT } from "../config/constants";
 
 const queryResolvers: IResolvers = {
   Query: {
@@ -26,6 +27,7 @@ const queryResolvers: IResolvers = {
     ): Promise<{
       status: boolean;
       message: string;
+      elementSelect: string;
       token?: string;
     }> => {
       return await context.db
@@ -39,6 +41,7 @@ const queryResolvers: IResolvers = {
               status: false,
               message:
                 "Usuario no existe, comprueba que has introducido correctamente el correo",
+              elementSelect: ELEMENTS_SELECT.TOKEN,
             };
           }
           // Comprobamos el password
@@ -47,6 +50,7 @@ const queryResolvers: IResolvers = {
               status: false,
               message:
                 "Password no correcto, comprueba de nuevo introduciéndolo",
+              elementSelect: ELEMENTS_SELECT.TOKEN,
             };
           }
           // delete user?._id;
@@ -55,6 +59,7 @@ const queryResolvers: IResolvers = {
           return {
             status: true,
             message: "Usuario correctamente cargado",
+            elementSelect: ELEMENTS_SELECT.TOKEN,
             token: new JWT().sign(user as unknown as IUser),
           };
         })
@@ -62,6 +67,7 @@ const queryResolvers: IResolvers = {
           return {
             status: false,
             message: `Error: ${error}`,
+            elementSelect: ELEMENTS_SELECT.TOKEN,
           };
         });
     },
@@ -72,20 +78,21 @@ const queryResolvers: IResolvers = {
     ): {
       status: boolean;
       message: string;
+      elementSelect: string;
       user?: IUser;
     } => {
-      console.log(context.token);
       const info = new JWT().verify(context.token);
-      console.log("context.token: ", context.token);
       if (info === "Token inválido") {
         return {
           status: false,
           message: "Token no correcto por estar caducado o inválido",
+          elementSelect: ELEMENTS_SELECT.USER,
         };
       }
       return {
         status: true,
         message: "Token correcto para utilizar la información almacenada",
+        elementSelect: ELEMENTS_SELECT.USER,
         user: (info as unknown as { user: IUser }).user,
       };
     },

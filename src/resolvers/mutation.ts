@@ -2,6 +2,8 @@ import { IUser } from "../interfaces/user.interface";
 import { IResolvers } from "@graphql-tools/utils";
 import { Db } from "mongodb";
 import bcrypt from "bcrypt";
+import JWT from "../lib/jwt";
+import { ELEMENTS_SELECT } from "../config/constants";
 
 const mutationResolvers: IResolvers = {
   Mutation: {
@@ -12,6 +14,7 @@ const mutationResolvers: IResolvers = {
     ): Promise<{
       status: boolean;
       message: string;
+      elementSelect: string;
       user?: IUser;
     }> => {
       // Comprobar si existe el usuario en la base de datos con el correo
@@ -24,6 +27,7 @@ const mutationResolvers: IResolvers = {
         return {
           status: false,
           message: "Usuario existe y no podemos registrarnos",
+          elementSelect: ELEMENTS_SELECT.USER,
         };
       }
 
@@ -32,6 +36,7 @@ const mutationResolvers: IResolvers = {
         return {
           status: false,
           message: "Password no establecido / asignado",
+          elementSelect: ELEMENTS_SELECT.USER,
         };
       }
 
@@ -65,6 +70,7 @@ const mutationResolvers: IResolvers = {
           return {
             status: true,
             message: "Añadido correctamente",
+            elementSelect: ELEMENTS_SELECT.USER,
             user: args.user,
           };
         })
@@ -73,20 +79,30 @@ const mutationResolvers: IResolvers = {
           return {
             status: false,
             message: `ERROR: ${error}`,
+            elementSelect: ELEMENTS_SELECT.USER,
           };
         });
     },
     update: async (
       _: void,
       args: { user: IUser },
-      context: { db: Db }
+      context: { db: Db; token: string }
     ): Promise<{
       status: boolean;
       message: string;
+      elementSelect: string;
       user?: IUser;
     }> => {
       // Verificar el token para poder realizar la operación
-
+      const info = new JWT().verify(context.token);
+      if (info === "Token inválido") {
+        return {
+          status: false,
+          message:
+            "Token no correcto por estar caducado o inválido.No puedes actualizar el usuario por no tener permiso.",
+          elementSelect: ELEMENTS_SELECT.USER,
+        };
+      }
       // Verificar si el usuario existe mediante el id
       const userData: IUser = (await context.db
         .collection("users")
@@ -97,6 +113,7 @@ const mutationResolvers: IResolvers = {
           status: false,
           message:
             "Usuario no se puede actualizar.No está registrado.¿Estás seguro que has introducido correctaemnte los datos?",
+          elementSelect: ELEMENTS_SELECT.USER,
         };
       }
       args.user = Object.assign(args.user, {
@@ -110,7 +127,8 @@ const mutationResolvers: IResolvers = {
         .then(() => {
           return {
             status: true,
-            message: "Actualizado correctamente",
+            message: "Actualizado correctamente el usuario",
+            elementSelect: ELEMENTS_SELECT.USER,
             user: args.user,
           };
         })
@@ -119,6 +137,7 @@ const mutationResolvers: IResolvers = {
           return {
             status: false,
             message: `ERROR - No Actualizado: ${error}`,
+            elementSelect: ELEMENTS_SELECT.USER,
           };
         });
     },
