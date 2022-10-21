@@ -1,7 +1,7 @@
 {
-  "name": "jwt-login-register",
+  "name": "backend-neoprode",
   "version": "1.0.0",
-  "description": "Sistema de gestión de usuarios con login, registro y autenticación mediante token",
+  "description": "Backend para aplicación neoProde",
   "main": "build/app.js",
   "scripts": {
     "start": "node build/app.js",

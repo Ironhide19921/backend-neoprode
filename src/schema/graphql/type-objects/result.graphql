@@ -11,3 +11,10 @@ type ResultToken implements Result {
   elementSelect: String!
   token: String
 }
+
+type ResultTournament implements Result {
+  status: Boolean!
+  message: String!
+  elementSelect: String!
+  tournament: Tournament
+}

@@ -12,6 +12,10 @@ const resolversTypes: IResolvers = {
       if (root.elementSelect == ELEMENTS_SELECT.TOKEN) {
         return "ResultToken";
       }
+      // Only ColoringBook has a colors field
+      if (root.elementSelect == ELEMENTS_SELECT.TOURNAMENT) {
+        return "ResultTournament";
+      }
       return null; // GraphQLError is thrown
     },
   },

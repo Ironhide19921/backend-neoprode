@@ -1,8 +1,9 @@
 import { IResolvers } from "@graphql-tools/utils";
 import { Db } from "mongodb";
-import { IUser } from "../interfaces/user.interface";
 import bcrypt from "bcrypt";
 import JWT from "../lib/jwt";
+import { IUser } from "../interfaces/user.interface";
+import { ITournament } from "../interfaces/tournament.interface";
 import { ELEMENTS_SELECT } from "../config/constants";
 
 const queryResolvers: IResolvers = {
@@ -16,6 +17,16 @@ const queryResolvers: IResolvers = {
         .collection("users")
         .find()
         .toArray()) as unknown as Array<IUser>;
+    },
+    tournaments: async (
+      _: void,
+      __: unknown,
+      context: { db: Db }
+    ): Promise<Array<ITournament>> => {
+      return (await context.db
+        .collection("tournaments")
+        .find()
+        .toArray()) as unknown as Array<ITournament>;
     },
     login: async (
       _: void,

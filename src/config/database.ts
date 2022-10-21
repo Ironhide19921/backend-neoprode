@@ -7,8 +7,7 @@ class Database {
     console.log("===========DATABASE===========");
     try {
       const MONGODB =
-        process.env.DATABASE ||
-        "mongodb://localhost:27017/jwt-login-register-21";
+        process.env.DATABASE || "mongodb://localhost:27017/neoprode";
 
       const mongoClient = await MongoClient.connect(MONGODB);
 

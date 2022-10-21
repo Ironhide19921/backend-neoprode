@@ -1,9 +1,10 @@
-import { IUser } from "../interfaces/user.interface";
 import { IResolvers } from "@graphql-tools/utils";
-import { Db } from "mongodb";
 import bcrypt from "bcrypt";
 import JWT from "../lib/jwt";
+import { Db } from "mongodb";
 import { ELEMENTS_SELECT } from "../config/constants";
+import { IUser } from "../interfaces/user.interface";
+import { ITournament } from "../interfaces/tournament.interface";
 
 const mutationResolvers: IResolvers = {
   Mutation: {
@@ -80,6 +81,80 @@ const mutationResolvers: IResolvers = {
             status: false,
             message: `ERROR: ${error}`,
             elementSelect: ELEMENTS_SELECT.USER,
+          };
+        });
+    },
+    addTournament: async (
+      _: void,
+      args: { tournament: ITournament },
+      context: { db: Db }
+    ): Promise<{
+      status: boolean;
+      message: string;
+      elementSelect: string;
+      tournament?: ITournament;
+    }> => {
+      // Comprobar si existe el usuario en la base de datos con el correo
+      // Si existe, error mostrando feedback
+      const tournamentCheck = await context.db
+        .collection("tournaments")
+        .findOne({ name: args.tournament.name });
+
+      if (tournamentCheck) {
+        return {
+          status: false,
+          message: "Torneo existe y no podemos agregarlo",
+          elementSelect: ELEMENTS_SELECT.TOURNAMENT,
+        };
+      }
+
+      // Torneo sin nombre definido, mostrar error si se cumple
+      if (!args.tournament.name) {
+        return {
+          status: false,
+          message: "Nombre no establecido / asignado",
+          elementSelect: ELEMENTS_SELECT.TOURNAMENT,
+        };
+      }
+
+      // YA TENEMOS LO NECESARIO PARA AÑADIR
+      // Si todo va bien y tenemos la información para almacenar
+      // Asignar el ID nuevo automáticamente, basándonos
+      const lastElement = await context.db
+        .collection("tournaments")
+        .find()
+        .limit(1)
+        .sort({
+          registerDate: -1,
+        })
+        .toArray();
+
+      args.tournament.id =
+        lastElement.length === 0 ? "1" : String(+lastElement[0].id + 1);
+
+      console.log(args.tournament);
+
+      // Añadir la fecha de registro antes de almacenar
+      args.tournament.registerDate = new Date().toISOString();
+
+      // Insertar el torneo en la base de datos
+      return await context.db
+        .collection("tournaments")
+        .insertOne(args.tournament)
+        .then(() => {
+          return {
+            status: true,
+            message: "Añadido correctamente",
+            elementSelect: ELEMENTS_SELECT.TOURNAMENT,
+            tournament: args.tournament,
+          };
+        })
+        .catch((error) => {
+          console.log(`ERROR: ${error}`);
+          return {
+            status: false,
+            message: `ERROR: ${error}`,
+            elementSelect: ELEMENTS_SELECT.TOURNAMENT,
           };
         });
     },

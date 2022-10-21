@@ -1,6 +1,8 @@
 type Query {
   "Lista de usuarios de la Base de datos"
   users: [User!]!
+  "Lista de torneos de la Base de datos"
+  tournaments: [Tournament!]!
   "Inicio de sesión con nuestros credenciales"
   login(email: String!, password: String!): Result!
   "Obtenemos nuestros datos mediante autenticación por token JWT"
