@@ -1,0 +1,6 @@
+input TournamentInput {
+  id: ID
+  name: String!
+  registerDate: String
+  users: [String]
+}

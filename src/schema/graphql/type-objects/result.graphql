@@ -1,0 +1,20 @@
+type ResultUser implements Result {
+  status: Boolean!
+  message: String!
+  elementSelect: String!
+  user: User
+}
+
+type ResultToken implements Result {
+  status: Boolean!
+  message: String!
+  elementSelect: String!
+  token: String
+}
+
+type ResultTournament implements Result {
+  status: Boolean!
+  message: String!
+  elementSelect: String!
+  tournament: Tournament
+}
