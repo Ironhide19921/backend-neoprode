@@ -13,7 +13,7 @@ const typesPeopleResolvers: IResolvers = {
       if (obj.name) {
         return "Tournament";
       }
-      return null; // GraphQLError is thrown
+      return null; // GraphQLError is throwns
     },
   },
   Tournament: {
